@@ -1,6 +1,7 @@
 package org.lessons.java;
 
 import java.sql.*;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws SQLException {
@@ -8,13 +9,19 @@ public class Main {
         String user = "root";
         String password = "root";
 
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Inserire parola di ricerca per filtrare nomi di nazioni:");
+        String search = scanner.nextLine();
+
         try (Connection con = DriverManager.getConnection(url, user, password)) {
             String sql = "SELECT `countries`.`country_id`, `countries`.`name`, `regions`.`name`, `continents`.`name` " +
                     "FROM `countries` " +
                     "JOIN `regions` ON `countries`.`region_id` = `regions`.`region_id` " +
                     "JOIN `continents` ON `regions`.`continent_id` = `continents`.`continent_id` " +
+                    "WHERE `countries`.`name` LIKE '%' ? '%' " +
                     "ORDER BY `countries`.`name`";
             try(PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setString(1, search);
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
                         int countryId = rs.getInt(1);
